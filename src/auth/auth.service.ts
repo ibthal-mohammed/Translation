@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegAuthDto } from './dto/reg-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
@@ -36,7 +40,8 @@ export class AuthService {
 
   async Register(regAuthDto: RegAuthDto) {
     let foundUser = await this.usersModel.findOne({ email: regAuthDto.email });
-    if (foundUser) throw new Error('Email Already Exists, Please Login');
+    if (foundUser)
+      throw new ConflictException('Email Already Exists, Please Login');
 
     let salt = await bcrypt.genSalt(10);
     let HashedPassword = await bcrypt.hash(regAuthDto.password, salt);
