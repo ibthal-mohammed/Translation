@@ -67,12 +67,22 @@ export class TranslateController {
   }
 
   @Get(':id')
+  @ApiParam({
+    name: 'projectId',
+    type: String,
+    description: 'The ID of the project',
+  })
   @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
   findOne(@Param('id') _id: ObjectId) {
     return this.translateService.findOne(_id);
   }
 
   @Patch(':id')
+  @ApiParam({
+    name: 'projectId',
+    type: String,
+    description: 'The ID of the project',
+  })
   @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
   update(
     @Param('id') _id: ObjectId,
@@ -82,6 +92,11 @@ export class TranslateController {
   }
 
   @Delete(':id')
+  @ApiParam({
+    name: 'projectId',
+    type: String,
+    description: 'The ID of the project',
+  })
   @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
   remove(@Param('id') _id: ObjectId) {
     this.translateService.remove(_id);
