@@ -18,7 +18,6 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
-  ApiHeader,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
@@ -49,7 +48,6 @@ export class ProjectController {
   // @ApiCreatedResponse(Project)
   findAll(@Request() req) {
     const { id } = req.user;
-
     return this.projectService.findAllprojects(id);
   }
 

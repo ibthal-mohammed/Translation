@@ -13,14 +13,6 @@ export class ProjectService {
     private readonly jwtService: JwtService,
   ) {}
   async create(createProjectDto: CreateProjectDto, id) {
-    // console.log(req.header);
-    // const authHeader = req.headers['authorization'];
-    // const token = authHeader.split(' ')[1];
-    // const decoded = await this.jwtService.verify(token, {
-    //   secret: process.env.JWT_SECRET,
-    // });
-    // // console.log(decoded.id);
-    // const userId = decoded.id;
     let newProject = new this.projectModel(createProjectDto);
     newProject.userId = id;
     await newProject.save();

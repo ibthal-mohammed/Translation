@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -11,9 +11,10 @@ export class CreateProjectDto {
   public title: String;
   @ApiProperty({
     description: 'language you want translate to',
-    example: 'ar',
+    example: ['ar', 'fr'],
   })
-  @IsNotEmpty()
-  @IsString()
-  targetLanguage: String;
+  @IsString({ each: true })
+  @IsArray()
+  @ArrayNotEmpty()
+  targetLanguage: [String];
 }
