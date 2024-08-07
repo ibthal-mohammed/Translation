@@ -1,8 +1,7 @@
-import { Injectable, Delete } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { Project } from './project.model';
 
@@ -12,30 +11,32 @@ export class ProjectService {
     @InjectModel('project') public projectModel: Model<Project>,
     private readonly jwtService: JwtService,
   ) {}
-  async create(createProjectDto: CreateProjectDto, id) {
+  async create(createProjectDto: CreateProjectDto, userId: ObjectId) {
     let newProject = new this.projectModel(createProjectDto);
-    newProject.userId = id;
+    newProject.userId = userId;
     await newProject.save();
-    return { data: newProject };
+    return newProject;
   }
 
-  async findAllprojects(id) {
-    let project = await this.projectModel.find({ userId: id });
+  async findAllprojects(userId: ObjectId) {
+    let project = await this.projectModel.find({ userId });
     return project;
   }
 
-  async findOne(_id: ObjectId, id) {
-    let project = await this.projectModel.findOne({
-      _id,
-      userId: id,
-    });
+  async findOne(projectId: ObjectId, userId: ObjectId) {
+    let project = await this.projectModel.findOne({ _id: projectId, userId });
+    if (!project)
+      throw new NotFoundException(`Project with id ${projectId} not found`);
     return project;
   }
 
-  async Delete(_id: ObjectId, id) {
+  async Delete(projectId: ObjectId, userId: ObjectId) {
     let project = await this.projectModel.findByIdAndDelete({
-      _id,
-      userId: id,
+      _id: projectId,
+      userId,
     });
+    if (!project)
+      throw new NotFoundException(`Project with id ${projectId} not found`);
+    return `This project is removed`;
   }
 }

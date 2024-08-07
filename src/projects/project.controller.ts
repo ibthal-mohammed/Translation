@@ -40,28 +40,27 @@ export class ProjectController {
     description: 'The user cannot create project.',
   })
   create(@Body() createProjectDto: CreateProjectDto, @Request() req) {
-    const { id } = req.user;
-    return this.projectService.create(createProjectDto, id);
+    const userId = req.user.id;
+    return this.projectService.create(createProjectDto, userId);
   }
 
   @Get()
   // @ApiCreatedResponse(Project)
   findAll(@Request() req) {
-    const { id } = req.user;
-    return this.projectService.findAllprojects(id);
+    const userId = req.user.id;
+    return this.projectService.findAllprojects(userId);
   }
 
   @Get(':id')
   @ApiParam({ name: 'id', type: String, description: 'The ID of the project' })
-  findOne(@Param('id') _id: ObjectId, @Request() req) {
-    const { id } = req.user;
-    return this.projectService.findOne(_id, id);
+  findOne(@Param('id') projectId: ObjectId, @Request() req) {
+    const userId = req.user.id;
+    return this.projectService.findOne(projectId, userId);
   }
   @Delete(':id')
   @ApiParam({ name: 'id', type: String, description: 'The ID of the project' })
-  remove(@Param('id') _id: ObjectId, @Request() req) {
-    const { id } = req.user;
-    this.projectService.Delete(_id, id);
-    return `This project is removed`;
+  remove(@Param('id') ptojectId: ObjectId, @Request() req) {
+    const userId = req.user.id;
+    return this.projectService.Delete(ptojectId, userId);
   }
 }

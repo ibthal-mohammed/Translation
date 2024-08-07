@@ -51,9 +51,12 @@ export class TranslateController {
     @Param('projectId') projectId: ObjectId,
     @Request() req,
   ) {
-    const { id } = req.user;
-
-    return this.translateService.addString(projectId, createTranslateDto, id);
+    const userId = req.user.id;
+    return this.translateService.addString(
+      projectId,
+      createTranslateDto,
+      userId,
+    );
   }
 
   @Get()
@@ -62,8 +65,9 @@ export class TranslateController {
     type: String,
     description: 'The ID of the project',
   })
-  findAll(@Param('projectId') projectId: ObjectId) {
-    return this.translateService.findAll(projectId);
+  findAll(@Param('projectId') projectId: ObjectId, @Request() req) {
+    const userId = req.user.id;
+    return this.translateService.findAll(projectId, userId);
   }
 
   @Get(':id')
@@ -73,8 +77,13 @@ export class TranslateController {
     description: 'The ID of the project',
   })
   @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
-  findOne(@Param('id') _id: ObjectId) {
-    return this.translateService.findOne(_id);
+  findOne(
+    @Param('projectId') projectId: ObjectId,
+    @Param('id') translateId: ObjectId,
+    @Request() req,
+  ) {
+    const userId = req.user.id;
+    return this.translateService.findOne(translateId, projectId, userId);
   }
 
   @Patch(':id')
@@ -85,10 +94,19 @@ export class TranslateController {
   })
   @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
   update(
-    @Param('id') _id: ObjectId,
+    @Param('projectId') projectId: ObjectId,
+    @Param('id') translateId: ObjectId,
+    @Request() req,
+
     @Body() updateTranslateDto: UpdateTranslateDto,
   ) {
-    return this.translateService.update(_id, updateTranslateDto);
+    const userId = req.user.id;
+    return this.translateService.update(
+      translateId,
+      updateTranslateDto,
+      userId,
+      projectId,
+    );
   }
 
   @Delete(':id')
@@ -98,8 +116,12 @@ export class TranslateController {
     description: 'The ID of the project',
   })
   @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
-  remove(@Param('id') _id: ObjectId) {
-    this.translateService.remove(_id);
-    return `This project is removed`;
+  remove(
+    @Param('projectId') projectId: ObjectId,
+    @Param('id') translateId: ObjectId,
+    @Request() req,
+  ) {
+    const userId = req.user.id;
+    return this.translateService.remove(translateId, projectId, userId);
   }
 }
