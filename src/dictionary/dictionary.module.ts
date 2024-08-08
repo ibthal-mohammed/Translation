@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TranslateService } from './translate.service';
-import { TranslateController } from './translate.controller';
+import { TranslateService } from './dictionary.service';
+import { TranslateController } from './dictionary.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { translateSchema } from './translate.schema';
-import { ProjectModule } from 'src/projects/project.module';
+import { translateSchema } from './dictionary.schema';
+import { ProjectModule } from 'src/project/project.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({

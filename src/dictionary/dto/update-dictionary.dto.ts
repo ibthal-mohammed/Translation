@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateTranslateDto } from './create-translate.dto';
+import { CreateTranslateDto } from './create-dictionary.dto';
 import { ArrayNotEmpty, IsArray, IsOptional, IsString } from 'class-validator';
 
 export class UpdateTranslateDto extends PartialType(CreateTranslateDto) {

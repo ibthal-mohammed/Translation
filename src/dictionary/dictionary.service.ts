@@ -4,13 +4,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateTranslateDto } from './dto/create-translate.dto';
-import { UpdateTranslateDto } from './dto/update-translate.dto';
+import { CreateTranslateDto } from './dto/create-dictionary.dto';
+import { UpdateTranslateDto } from './dto/update-dictionary.dto';
 import { Model, ObjectId } from 'mongoose';
 import { translate } from '@vitalets/google-translate-api';
 import { InjectModel } from '@nestjs/mongoose';
-import { ProjectService } from 'src/projects/project.service';
-import { Translate } from './translat.model';
+import { ProjectService } from 'src/project/project.service';
+import { Translate } from './dictionary.model';
 
 @Injectable()
 export class TranslateService {

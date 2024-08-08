@@ -9,6 +9,7 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -22,6 +23,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Project } from './project.model';
+import { IsObjectIdPipe } from 'nestjs-object-id';
 
 @ApiTags('project')
 @ApiBearerAuth()
@@ -53,13 +55,13 @@ export class ProjectController {
 
   @Get(':id')
   @ApiParam({ name: 'id', type: String, description: 'The ID of the project' })
-  findOne(@Param('id') projectId: ObjectId, @Request() req) {
+  findOne(@Param('id', IsObjectIdPipe) projectId: ObjectId, @Request() req) {
     const userId = req.user.id;
     return this.projectService.findOne(projectId, userId);
   }
   @Delete(':id')
   @ApiParam({ name: 'id', type: String, description: 'The ID of the project' })
-  remove(@Param('id') ptojectId: ObjectId, @Request() req) {
+  remove(@Param('id', IsObjectIdPipe) ptojectId: ObjectId, @Request() req) {
     const userId = req.user.id;
     return this.projectService.Delete(ptojectId, userId);
   }

@@ -9,7 +9,7 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
-import { User } from 'src/users/user.model';
+import { User } from 'src/user/user.model';
 
 @Injectable()
 export class AuthService {
@@ -48,6 +48,6 @@ export class AuthService {
     regAuthDto.password = HashedPassword;
     let newUser = new this.usersModel(regAuthDto);
     await newUser.save();
-    return { data: newUser };
+    return newUser;
   }
 }

@@ -13,14 +13,14 @@ import {
   ApiCreatedResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from 'src/users/user.model';
+import { User } from 'src/user/user.model';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @UsePipes(ValidationPipe)
+  @UsePipes(new ValidationPipe({ transform: true }))
   @Post('login')
   @ApiCreatedResponse({
     description: 'The user has been successfully login.',

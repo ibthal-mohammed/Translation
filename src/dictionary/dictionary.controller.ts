@@ -11,9 +11,9 @@ import {
   ValidationPipe,
   Request,
 } from '@nestjs/common';
-import { TranslateService } from './translate.service';
-import { CreateTranslateDto } from './dto/create-translate.dto';
-import { UpdateTranslateDto } from './dto/update-translate.dto';
+import { TranslateService } from './dictionary.service';
+import { CreateTranslateDto } from './dto/create-dictionary.dto';
+import { UpdateTranslateDto } from './dto/update-dictionary.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -23,7 +23,8 @@ import {
 } from '@nestjs/swagger';
 import { ObjectId } from 'mongoose';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { Translate } from './translat.model';
+import { Translate } from './dictionary.model';
+import { IsObjectIdPipe } from 'nestjs-object-id';
 
 @ApiTags('translate')
 @ApiBearerAuth()
@@ -48,7 +49,7 @@ export class TranslateController {
   })
   create(
     @Body() createTranslateDto: CreateTranslateDto,
-    @Param('projectId') projectId: ObjectId,
+    @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
     @Request() req,
   ) {
     const userId = req.user.id;
@@ -65,7 +66,10 @@ export class TranslateController {
     type: String,
     description: 'The ID of the project',
   })
-  findAll(@Param('projectId') projectId: ObjectId, @Request() req) {
+  findAll(
+    @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
+    @Request() req,
+  ) {
     const userId = req.user.id;
     return this.translateService.findAll(projectId, userId);
   }
@@ -78,8 +82,8 @@ export class TranslateController {
   })
   @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
   findOne(
-    @Param('projectId') projectId: ObjectId,
-    @Param('id') translateId: ObjectId,
+    @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
+    @Param('id', IsObjectIdPipe) translateId: ObjectId,
     @Request() req,
   ) {
     const userId = req.user.id;
@@ -94,8 +98,8 @@ export class TranslateController {
   })
   @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
   update(
-    @Param('projectId') projectId: ObjectId,
-    @Param('id') translateId: ObjectId,
+    @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
+    @Param('id', IsObjectIdPipe) translateId: ObjectId,
     @Request() req,
 
     @Body() updateTranslateDto: UpdateTranslateDto,
@@ -117,8 +121,8 @@ export class TranslateController {
   })
   @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
   remove(
-    @Param('projectId') projectId: ObjectId,
-    @Param('id') translateId: ObjectId,
+    @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
+    @Param('id', IsObjectIdPipe) translateId: ObjectId,
     @Request() req,
   ) {
     const userId = req.user.id;
