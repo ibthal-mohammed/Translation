@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ObjectId } from 'mongoose';
-export class Translate {
+export class Dictionary {
   @ApiProperty()
   key: string;
   @ApiProperty()

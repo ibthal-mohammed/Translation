@@ -1,8 +1,8 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateTranslateDto } from './create-dictionary.dto';
+import { CreateDictionaryDto } from './create-dictionary.dto';
 import { ArrayNotEmpty, IsArray, IsOptional, IsString } from 'class-validator';
 
-export class UpdateTranslateDto extends PartialType(CreateTranslateDto) {
+export class UpdateDictionaryDto extends PartialType(CreateDictionaryDto) {
   @ApiProperty({
     description: 'translate the text',
     example: ['Bonjour', 'مرحبا'],

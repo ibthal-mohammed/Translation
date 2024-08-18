@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { ProjectModule } from './project/project.module';
 import { ConfigModule } from '@nestjs/config';
-import { TranslateModule } from './dictionary/dictionary.module';
+import { DictionaryModule } from './dictionary/dictionary.module';
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { TranslateModule } from './dictionary/dictionary.module';
       secret: process.env.JWT_SECRET,
     }),
     ProjectModule,
-    TranslateModule,
+    DictionaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateTranslateDto {
+export class CreateDictionaryDto {
   @ApiProperty({
     description: 'the key of operation',
     example: '1k',

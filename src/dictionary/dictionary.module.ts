@@ -1,18 +1,20 @@
 import { Module } from '@nestjs/common';
-import { TranslateService } from './dictionary.service';
-import { TranslateController } from './dictionary.controller';
+import { DictionaryService } from './dictionary.service';
+import { DictionaryController } from './dictionary.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { translateSchema } from './dictionary.schema';
+import { dictionarySchema } from './dictionary.schema';
 import { ProjectModule } from 'src/project/project.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'translate', schema: translateSchema }]),
+    MongooseModule.forFeature([
+      { name: 'dictionary', schema: dictionarySchema },
+    ]),
     ProjectModule,
     JwtModule,
   ],
-  controllers: [TranslateController],
-  providers: [TranslateService],
+  controllers: [DictionaryController],
+  providers: [DictionaryService],
 })
-export class TranslateModule {}
+export class DictionaryModule {}

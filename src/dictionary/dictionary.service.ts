@@ -4,23 +4,23 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateTranslateDto } from './dto/create-dictionary.dto';
-import { UpdateTranslateDto } from './dto/update-dictionary.dto';
+import { CreateDictionaryDto } from './dto/create-dictionary.dto';
+import { UpdateDictionaryDto } from './dto/update-dictionary.dto';
 import { Model, ObjectId } from 'mongoose';
 import { translate } from '@vitalets/google-translate-api';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProjectService } from 'src/project/project.service';
-import { Translate } from './dictionary.model';
+import { Dictionary } from './dictionary.model';
 
 @Injectable()
-export class TranslateService {
+export class DictionaryService {
   constructor(
-    @InjectModel('translate') private translateModel: Model<Translate>,
+    @InjectModel('dictionary') private DictionaryModel: Model<Dictionary>,
     private readonly projectService: ProjectService,
   ) {}
   async addString(
     projectId: ObjectId,
-    createTranslateDto: CreateTranslateDto,
+    createTranslateDto: CreateDictionaryDto,
     userId: ObjectId,
   ) {
     let project = await this.projectService.findOne(projectId, userId);
@@ -28,7 +28,7 @@ export class TranslateService {
       throw new UnauthorizedException(
         "you can't have permissionto add in this project",
       );
-    let newTranslation = new this.translateModel(createTranslateDto);
+    let newTranslation = new this.DictionaryModel(createTranslateDto);
     let targetLanguages: string[] = Array.isArray(project.targetLanguage)
       ? project.targetLanguage
       : [project.targetLanguage];
@@ -48,50 +48,75 @@ export class TranslateService {
 
   async findAll(projectId: ObjectId, userId: ObjectId) {
     let project = await this.projectService.findOne(projectId, userId);
-    if (!project)
-      throw new UnauthorizedException(
-        "you can't have permissionto open this project",
-      );
-    let allValue = await this.translateModel.find({ projectId });
-    return allValue;
+    let targetLanguages: string[] = Array.isArray(project.targetLanguage)
+      ? project.targetLanguage
+      : [project.targetLanguage];
+    let allValue = await this.DictionaryModel.find({ projectId });
+    // console.log(allValue);
+
+    let response: Record<string, Record<string, string>> = {}; //{"k":{"k":"v"}}
+    allValue.forEach((translation) => {
+      const { key, text, value } = translation;
+      let i = 0;
+      targetLanguages.unshift('en');
+      targetLanguages.forEach((language) => {
+        if (!response[language]) {
+          response[language] = {};
+        }
+        // console.log('Response:', response);
+        // console.log('Language:', language);
+        // console.log('Text:', text);
+        // console.log('Key:', key);
+        if (language == 'en') {
+          response[language][key] = text;
+        } else {
+          // console.log('counter ', i);
+          // console.log('value ', vale);
+          response[language][key] = value[i];
+          i++;
+        }
+      });
+    });
+    let data = allValue.map((data) => {
+      return {
+        id: data._id,
+        key: data.key,
+      };
+    });
+    return { dictionary: response, data: data };
   }
 
-  async findOne(translateId: ObjectId, projectId: ObjectId, userId: ObjectId) {
-    let project = await this.projectService.findOne(projectId, userId);
-    if (!project)
-      throw new UnauthorizedException(
-        "you can't have permissionto open this project",
-      );
-    let value = await this.translateModel.findOne({ _id: translateId });
-    if (!value)
-      throw new NotFoundException(`Translate with id ${translateId} not found`);
+  async findOne(language: string, projectId: ObjectId, userId: ObjectId) {
+    let response = this.findAll(projectId, userId);
+    let result = response.then((result) => {
+      // console.log(result[language]);
+      if (!result[language])
+        throw new NotFoundException('this language is not exist');
+      return result[language];
+    });
 
-    return value;
+    return result;
   }
 
   async update(
-    translateId: ObjectId,
-    updateTranslateDto: UpdateTranslateDto,
+    dictionaryId: ObjectId,
+    updateTranslateDto: UpdateDictionaryDto,
     userId: ObjectId,
     projectId: ObjectId,
   ) {
     let projectExist = await this.projectService.findOne(projectId, userId);
-
-    if (!projectExist) {
-      throw new UnauthorizedException(
-        "you can't have permissionto edit this project",
-      );
-    }
-    let existingTranslate = await this.translateModel.findOne({
-      _id: translateId,
+    let existingTranslate = await this.DictionaryModel.findOne({
+      _id: dictionaryId,
     });
     // console.log(existingTranslate);
     if (!existingTranslate) {
-      throw new NotFoundException(`Translate with id ${translateId} not found`);
+      throw new NotFoundException(
+        `Translate with id ${dictionaryId} not found`,
+      );
     }
     try {
-      const updated = await this.translateModel.findByIdAndUpdate(
-        { _id: translateId },
+      const updated = await this.DictionaryModel.findByIdAndUpdate(
+        { _id: dictionaryId },
         updateTranslateDto,
         {
           new: true,
@@ -104,20 +129,18 @@ export class TranslateService {
     }
   }
 
-  async remove(translateId: ObjectId, projectId: ObjectId, userId: ObjectId) {
+  async remove(dictionaryId: ObjectId, projectId: ObjectId, userId: ObjectId) {
     let projectExist = await this.projectService.findOne(projectId, userId);
-    if (!projectExist)
-      throw new UnauthorizedException(
-        "you can't have permissionto delete this project",
-      );
-    let existingTranslate = await this.translateModel.find({
-      _id: translateId,
+    let existingTranslate = await this.DictionaryModel.find({
+      _id: dictionaryId,
     });
     if (!existingTranslate) {
-      throw new NotFoundException(`Translate with id ${translateId} not found`);
+      throw new NotFoundException(
+        `Translate with id ${dictionaryId} not found`,
+      );
     }
-    let deletedTranslate = await this.translateModel.findByIdAndDelete({
-      translateId,
+    let deletedTranslate = await this.DictionaryModel.findByIdAndDelete({
+      _id: dictionaryId,
     });
     return `This project is removed`;
   }

@@ -5,7 +5,6 @@ import {
   IsNotEmpty,
   IsString,
   Validate,
-  validate,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -49,5 +48,5 @@ export class CreateProjectDto {
   @IsString({ each: true })
   @IsArray()
   @ArrayNotEmpty()
-  targetLanguage: [String];
+  targetLanguage: String[];
 }
