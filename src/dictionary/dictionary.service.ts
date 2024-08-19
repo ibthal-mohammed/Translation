@@ -89,10 +89,10 @@ export class DictionaryService {
   async findOne(language: string, projectId: ObjectId, userId: ObjectId) {
     let response = this.findAll(projectId, userId);
     let result = response.then((result) => {
-      // console.log(result[language]);
-      if (!result[language])
+      // console.log(result['dictionary'][language]);
+      if (!result['dictionary'][language])
         throw new NotFoundException('this language is not exist');
-      return result[language];
+      return result['dictionary'][language];
     });
 
     return result;
@@ -131,17 +131,18 @@ export class DictionaryService {
 
   async remove(dictionaryId: ObjectId, projectId: ObjectId, userId: ObjectId) {
     let projectExist = await this.projectService.findOne(projectId, userId);
-    let existingTranslate = await this.DictionaryModel.find({
+    let existingTranslate = await this.DictionaryModel.findOne({
       _id: dictionaryId,
     });
     if (!existingTranslate) {
       throw new NotFoundException(
         `Translate with id ${dictionaryId} not found`,
       );
+    } else {
+      let deletedTranslate = await this.DictionaryModel.findByIdAndDelete({
+        _id: dictionaryId,
+      });
+      return `This translation is removed`;
     }
-    let deletedTranslate = await this.DictionaryModel.findByIdAndDelete({
-      _id: dictionaryId,
-    });
-    return `This project is removed`;
   }
 }
