@@ -1,50 +1,54 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { JwtService } from '@nestjs/jwt';
-import { Project } from './project.model';
+import { Project } from './project.schema';
+import { LanguageService } from 'src/language/language.service';
 @Injectable()
 export class ProjectService {
   constructor(
-    @InjectModel('project') public projectModel: Model<Project>,
-    private readonly jwtService: JwtService,
+    @InjectModel('project') protected projectModel: Model<Project>,
+    private readonly languageService: LanguageService,
   ) {}
   async create(createProjectDto: CreateProjectDto, userId: ObjectId) {
-    let newProject = new this.projectModel(createProjectDto);
+    const languages = createProjectDto.targetLanguages;
+    const targetLanguagesPromises = languages.map(async (lang) => {
+      const langId = await this.languageService.findByCode(lang);
+      if (!langId || !langId._id) {
+        throw new NotFoundException(`Language code ${lang} not found`);
+      }
+      return langId._id;
+    });
+    const targetLanguages = await Promise.all(targetLanguagesPromises);
+    const newProject = new this.projectModel({
+      ...createProjectDto,
+      userId,
+      targetLanguages,
+    });
     newProject.userId = userId;
     await newProject.save();
     return newProject;
   }
 
   async findAllprojects(userId: ObjectId) {
-    let project = await this.projectModel.find({ userId });
+    const project = await this.projectModel.find({ userId });
     return project;
   }
 
   async findOne(projectId: ObjectId, userId: ObjectId) {
-    let project = await this.projectModel.findOne({ _id: projectId });
+    const project = await this.projectModel.findOne({ _id: projectId, userId });
     if (!project)
       throw new NotFoundException(`Project with id ${projectId} not found`);
-    project = await this.projectModel.findOne({ _id: projectId, userId });
-    if (!project)
-      throw new UnauthorizedException(
-        "you can't have permissionto open this project",
-      );
     return project;
   }
 
-  async Delete(projectId: ObjectId, userId: ObjectId) {
-    let project = await this.findOne(projectId, userId);
-    project = await this.projectModel.findByIdAndDelete({
+  async remove(projectId: ObjectId, userId: ObjectId) {
+    const project = await this.projectModel.findOneAndDelete({
       _id: projectId,
       userId,
     });
-    return `This project is removed`;
+    if (!project)
+      throw new NotFoundException(`Project with id ${projectId} not found`);
+    return project;
   }
 }

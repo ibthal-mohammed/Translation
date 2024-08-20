@@ -9,7 +9,7 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
-import { User } from 'src/user/user.model';
+import { User } from 'src/user/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -18,18 +18,18 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  async Login(loginAuthDto: LoginAuthDto) {
-    let foundUser = await this.usersModel.findOne({
+  async login(loginAuthDto: LoginAuthDto) {
+    const foundUser = await this.usersModel.findOne({
       email: loginAuthDto.email,
     });
     if (!foundUser) throw new NotFoundException('Invalid Email Or Password..');
-    let isTruePass = await bcrypt.compare(
+    const isTruePass = await bcrypt.compare(
       loginAuthDto.password,
       foundUser.password,
     ); //true||false
     if (!isTruePass)
       throw new NotFoundException('Invalid Email Or Password !!');
-    let token = await this.jwt.sign(
+    const token = this.jwt.sign(
       { id: foundUser._id },
       {
         secret: process.env.JWT_SECRET,
@@ -38,15 +38,16 @@ export class AuthService {
     return token;
   }
 
-  async Register(regAuthDto: RegAuthDto) {
-    let foundUser = await this.usersModel.findOne({ email: regAuthDto.email });
+  async register(regAuthDto: RegAuthDto) {
+    const foundUser = await this.usersModel.findOne({
+      email: regAuthDto.email,
+    });
     if (foundUser)
       throw new ConflictException('Email Already Exists, Please Login');
-
-    let salt = await bcrypt.genSalt(10);
-    let HashedPassword = await bcrypt.hash(regAuthDto.password, salt);
+    const salt = await bcrypt.genSalt(10);
+    const HashedPassword = await bcrypt.hash(regAuthDto.password, salt);
     regAuthDto.password = HashedPassword;
-    let newUser = new this.usersModel(regAuthDto);
+    const newUser = new this.usersModel(regAuthDto);
     await newUser.save();
     return newUser;
   }

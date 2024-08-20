@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  MaxLength,
   MinLength,
   Validate,
   ValidatorConstraint,
@@ -12,24 +14,11 @@ import {
 export class IsFullNameValid implements ValidatorConstraintInterface {
   validate(fullName: string) {
     const alphabeticPattern = /^[a-zA-Z\s]+$/;
-    const trimmedName = fullName.trim();
-    const parts = trimmedName.split(' ');
+    const parts = fullName.split(' ');
     return parts.length >= 2 && alphabeticPattern.test(fullName);
   }
   defaultMessage(): string {
     return 'Full name must contain both first and last names and only characters';
-  }
-}
-@ValidatorConstraint({ name: 'isPasswordValid', async: false })
-export class IsPasswordValid implements ValidatorConstraintInterface {
-  validate(password: string): boolean {
-    const trimmedPassword = password.trim();
-    return (
-      trimmedPassword.length >= 8 && trimmedPassword.length === password.length
-    );
-  }
-  defaultMessage(): string {
-    return 'Password must be at least 8 characters long and cannot consist only of whitespace';
   }
 }
 export class RegAuthDto {
@@ -40,6 +29,7 @@ export class RegAuthDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
+  @Transform(({ value }) => value.trim())
   @Validate(IsFullNameValid)
   public fullName: string;
 
@@ -59,6 +49,8 @@ export class RegAuthDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(8)
-  @Validate(IsPasswordValid)
+  @MaxLength(16)
+  @Transform(({ value }) => value.trim())
+  // @Validate(IsPasswordValid)
   public password: string;
 }

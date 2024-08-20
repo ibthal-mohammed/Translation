@@ -1,7 +1,23 @@
-import mongoose, { Schema } from 'mongoose';
-export let dictionarySchema = new mongoose.Schema({
-  key: { type: String, required: true },
-  projectId: { type: Schema.Types.ObjectId, ref: 'project', required: true },
-  text: { type: String, required: true },
-  value: { type: [String], required: true },
-});
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
+import mongoose, { ObjectId } from 'mongoose';
+@Schema()
+export class Dictionary {
+  @ApiProperty()
+  @Prop({ type: String, required: true })
+  key: string;
+  @ApiProperty()
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project',
+    required: true,
+  })
+  projectId: mongoose.Schema.Types.ObjectId;
+  @ApiProperty()
+  @Prop({ type: String, required: true })
+  text: string;
+  @ApiProperty()
+  @Prop({ type: [String], required: true })
+  value: string[];
+}
+export const DictionarySchema = SchemaFactory.createForClass(Dictionary);

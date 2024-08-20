@@ -6,16 +6,17 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { ObjectId } from 'mongoose';
 
+export interface interceptedRequest extends Request {
+  user: { id: ObjectId };
+}
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    // .header('Authorization');
     const token = this.extractTokenFromHeader(request);
-    // console.log(token);
-    // console.log('request is ' + request + 'End');
     if (!token) {
       throw new UnauthorizedException();
     }
@@ -23,17 +24,12 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
       request.user = payload;
     } catch {
       throw new UnauthorizedException();
     }
     return true;
   }
-  //   if (!request) return false;
-  //   else return true;
-  // }
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;

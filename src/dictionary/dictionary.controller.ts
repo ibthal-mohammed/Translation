@@ -7,13 +7,9 @@ import {
   Param,
   Delete,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
   Request,
 } from '@nestjs/common';
 import { DictionaryService } from './dictionary.service';
-import { CreateDictionaryDto } from './dto/create-dictionary.dto';
-import { UpdateDictionaryDto } from './dto/update-dictionary.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -22,18 +18,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ObjectId } from 'mongoose';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { Dictionary } from './dictionary.model';
+import { AuthGuard, interceptedRequest } from 'src/auth/auth.guard';
 import { IsObjectIdPipe } from 'nestjs-object-id';
+import { UpdateDictionaryDto, CreateDictionaryDto } from './dto';
+import { Dictionary } from './dictionary.schema';
 
-@ApiTags('Dectionary')
+@ApiTags('Dictionaries')
 @ApiBearerAuth()
-@Controller('projects/:projectId/dectionary')
+@Controller('projects/:projectId/dictionaries')
 @UseGuards(AuthGuard)
 export class DictionaryController {
   constructor(private readonly dictionaryService: DictionaryService) {}
 
-  @UsePipes(ValidationPipe)
   @Post()
   @ApiCreatedResponse({
     description: 'The text has been successfully Translated.',
@@ -48,14 +44,14 @@ export class DictionaryController {
     description: 'The ID of the project',
   })
   create(
-    @Body() createTranslateDto: CreateDictionaryDto,
+    @Body() createDictionaryDto: CreateDictionaryDto,
     @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
-    @Request() req,
+    @Request() req: interceptedRequest,
   ) {
     const userId = req.user.id;
     return this.dictionaryService.addString(
       projectId,
-      createTranslateDto,
+      createDictionaryDto,
       userId,
     );
   }
@@ -68,64 +64,65 @@ export class DictionaryController {
   })
   findAll(
     @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
-    @Request() req,
+    @Request() req: interceptedRequest,
   ) {
     const userId = req.user.id;
     return this.dictionaryService.findAll(projectId, userId);
   }
 
-  @Get(':language')
-  @ApiParam({
-    name: 'projectId',
-    type: String,
-    description: 'The ID of the project',
-  })
-  @ApiParam({ name: 'language', type: String, description: 'The language' })
-  findOne(
-    @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
-    @Param('language') language: string,
-    @Request() req,
-  ) {
-    const userId = req.user.id;
-    return this.dictionaryService.findOne(language, projectId, userId);
-  }
+    @Get(':language')
+    @ApiParam({
+      name: 'projectId',
+      type: String,
+      description: 'The ID of the project',
+    })
+    @ApiParam({ name: 'language', type: String, description: 'The language' })
+    findOne(
+      @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
+      @Param('language') language: string,
+      @Request() req: interceptedRequest,
+    ) {
+      const userId = req.user.id;
+      return this.dictionaryService.findByLanguage(language, projectId, userId);
+    }
 
-  @Patch(':id')
-  @ApiParam({
-    name: 'projectId',
-    type: String,
-    description: 'The ID of the project',
-  })
-  @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
-  update(
-    @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
-    @Param('id', IsObjectIdPipe) dictionaryId: ObjectId,
-    @Request() req,
+    @Patch(':id')
+    @ApiParam({
+      name: 'projectId',
+      type: String,
+      description: 'The ID of the project',
+    })
+    @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
+    update(
+      @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
+      @Param('id', IsObjectIdPipe) dictionaryId: ObjectId,
+      @Request() req: interceptedRequest,
 
-    @Body() updateTranslateDto: UpdateDictionaryDto,
-  ) {
-    const userId = req.user.id;
-    return this.dictionaryService.update(
-      dictionaryId,
-      updateTranslateDto,
-      userId,
-      projectId,
-    );
-  }
+      @Body() updateDictionaryDto: UpdateDictionaryDto,
+    ) {
+      const userId = req.user.id;
+      return this.dictionaryService.update(
+        dictionaryId,
+        updateDictionaryDto,
+        userId,
+        projectId,
+      );
+    }
 
-  @Delete(':id')
-  @ApiParam({
-    name: 'projectId',
-    type: String,
-    description: 'The ID of the project',
-  })
-  @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
-  remove(
-    @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
-    @Param('id', IsObjectIdPipe) dictionaryId: ObjectId,
-    @Request() req,
-  ) {
-    const userId = req.user.id;
-    return this.dictionaryService.remove(dictionaryId, projectId, userId);
-  }
+    @Delete(':id')
+    @ApiParam({
+      name: 'projectId',
+      type: String,
+      description: 'The ID of the project',
+    })
+    @ApiParam({ name: 'id', type: String, description: 'The ID of the Text' })
+    async remove(
+      @Param('projectId', IsObjectIdPipe) projectId: ObjectId,
+      @Param('id', IsObjectIdPipe) dictionaryId: ObjectId,
+      @Request() req: interceptedRequest,
+    ) {
+      const userId = req.user.id;
+      await this.dictionaryService.remove(dictionaryId, projectId, userId);
+      return `This dictionary is removed`;
+    }
 }

@@ -1,15 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 @Schema()
-export class User {
+export class Language {
   @ApiProperty()
   @Prop({ type: String, required: true })
-  fullName: string;
+  name: string;
   @ApiProperty()
   @Prop({ type: String, required: true })
-  email: string;
-  @ApiProperty()
-  @Prop({ type: String, required: true })
-  password: string;
+  code: string;
 }
-export const UserSchema = SchemaFactory.createForClass(User);
+export const LanguageSchema = SchemaFactory.createForClass(Language);

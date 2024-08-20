@@ -1,26 +1,16 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegAuthDto } from './dto/reg-auth.dto';
-import { LoginAuthDto } from './dto/login-auth.dto';
+import { RegAuthDto, LoginAuthDto } from './dto';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from 'src/user/user.model';
-
-@ApiTags('auth')
+import { User } from 'src/user/user.schema';
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  @UsePipes(new ValidationPipe({ transform: true }))
   @Post('login')
   @ApiCreatedResponse({
     description: 'The user has been successfully login.',
@@ -29,10 +19,9 @@ export class AuthController {
   @ApiBadRequestResponse({
     description: 'The user cannot login.',
   })
-  Login(@Body() loginAuthDto: LoginAuthDto) {
-    return this.authService.Login(loginAuthDto);
+  login(@Body() loginAuthDto: LoginAuthDto) {
+    return this.authService.login(loginAuthDto);
   }
-  @UsePipes(ValidationPipe)
   @Post('signup')
   @ApiCreatedResponse({
     description: 'The user has been successfully created.',
@@ -41,7 +30,8 @@ export class AuthController {
   @ApiBadRequestResponse({
     description: 'The user cannot register.',
   })
-  Reg(@Body() regAuthDto: RegAuthDto) {
-    return this.authService.Register(regAuthDto);
+  async register(@Body() regAuthDto: RegAuthDto) {
+    await this.authService.register(regAuthDto);
+    return `register successfully`;
   }
 }

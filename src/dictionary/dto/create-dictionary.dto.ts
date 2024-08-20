@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateDictionaryDto {
@@ -7,6 +8,7 @@ export class CreateDictionaryDto {
     example: '1k',
   })
   @IsString()
+  @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   public key: String;
   @ApiProperty({
@@ -15,5 +17,6 @@ export class CreateDictionaryDto {
   })
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   public text: String;
 }

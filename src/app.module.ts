@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ProjectModule } from './project/project.module';
 import { ConfigModule } from '@nestjs/config';
 import { DictionaryModule } from './dictionary/dictionary.module';
+import { LanguageModule } from './language/language.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DictionaryModule } from './dictionary/dictionary.module';
     }),
     ProjectModule,
     DictionaryModule,
+    LanguageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
