@@ -41,7 +41,7 @@ export class ProjectService {
       throw new NotFoundException(`Project with id ${projectId} not found`);
     return project.populate({
       path: 'targetLanguages',
-      select: '-_id __v'
+      select: '-_id name code '
     })
   }
 
