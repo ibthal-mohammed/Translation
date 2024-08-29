@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'language', schema: LanguageSchema }]),
+    MongooseModule.forFeature([{ name: 'Language', schema: LanguageSchema }]),
     // ProjectModule,
   ],
   controllers: [LanguageController],

@@ -39,7 +39,10 @@ export class ProjectService {
     const project = await this.projectModel.findOne({ _id: projectId, userId });
     if (!project)
       throw new NotFoundException(`Project with id ${projectId} not found`);
-    return project;
+    return project.populate({
+      path: 'targetLanguages',
+      select: '-_id __v'
+    })
   }
 
   async remove(projectId: ObjectId, userId: ObjectId) {
