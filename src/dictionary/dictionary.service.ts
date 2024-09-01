@@ -8,9 +8,11 @@ import { UpdateDictionaryDto } from './dto/update-dictionary.dto';
 import { Model, ObjectId } from 'mongoose';
 import { translate } from '@vitalets/google-translate-api';
 import { InjectModel } from '@nestjs/mongoose';
-import { ProjectService } from 'src/project/project.service';
+// import { ProjectService } from 'src/project/project.service';
 import { Dictionary } from './dictionary.schema';
-import { LanguageService } from 'src/language/language.service';
+import { LanguageService } from '../language/language.service';
+import { ProjectService } from '../project/project.service';
+// import { LanguageService } from 'src/language/language.service';
 
 @Injectable()
 export class DictionaryService {
@@ -30,13 +32,12 @@ export class DictionaryService {
         "you can't have permissionto add in this project",
       );
     const languages = project.targetLanguages;
+    console.log(languages)
     const translationResults: string[] = [];
     const newTranslation = new this.DictionaryModel(createDictionaryDto);
-    const languageCode: string[] = [];
-    for (const language of languages) {
-      const code = (await this.languageService.findById(language)).code;
-      languageCode.push(code);
-    }
+    // const languageCode: string[] = [];
+    const languageCode = languages.map(item => item["code"]);
+
     for (const language of languageCode) {
       const result = (await translate(newTranslation.text, { to: language }))
         .text;
@@ -51,11 +52,13 @@ export class DictionaryService {
   async findAll(projectId: ObjectId, userId: ObjectId) {
     const project = await this.projectService.findOne(projectId, userId);
     const Language = project.targetLanguages;
-    const targetLanguages: string[] = [];
-    for (const lang of Language) {
-      const code = (await this.languageService.findById(lang)).code;
-      targetLanguages.push(code);
-    }
+    // const targetLanguages: string[] = [];
+    // for (const lang of Language) {
+    //   const code = (await this.languageService.findById(lang)).code;
+    //   targetLanguages.push(code);
+    // }
+    const targetLanguages = Language.map(item => item["code"]);
+
     const allValue = await this.DictionaryModel.find({ projectId });
 
     const response: Record<string, Record<string, string>> = {}; //{"k":{"k":"v"}}

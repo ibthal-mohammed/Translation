@@ -3,7 +3,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Project } from './project.schema';
-import { LanguageService } from 'src/language/language.service';
+import { LanguageService } from './../language/language.service';
 @Injectable()
 export class ProjectService {
   constructor(
@@ -41,7 +41,7 @@ export class ProjectService {
       throw new NotFoundException(`Project with id ${projectId} not found`);
     return project.populate({
       path: 'targetLanguages',
-      select: '-_id name code '
+      select: '_id name code '
     })
   }
 
